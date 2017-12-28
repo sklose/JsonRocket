@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
 
@@ -18,13 +17,13 @@ namespace JsonRocket.Test
             tokenizer.Reset("{'Key': 123, 'Value': 5}".ToInput());
 
             var extractor = new Extractor(trie);
-            var actual = new List<KeyValuePair<string, ArraySegment<byte>>>();
+            var actual = new List<ExtractedValue>();
             extractor.ReadFrom(tokenizer, actual);
 
             actual.Should().HaveCount(2);
-            actual[0].Key.Should().Be("Key");
+            actual[0].Path.Should().Be("Key");
             actual[0].Value.ToValue().Should().Be("123");
-            actual[1].Key.Should().Be("Value");
+            actual[1].Path.Should().Be("Value");
             actual[1].Value.ToValue().Should().Be("5");
         }
     }

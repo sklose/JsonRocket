@@ -183,7 +183,7 @@ namespace JsonRocket.Test
         }
 
         [Fact]
-        public void ProvidesBoundsForStrings()
+        public void ProvidesValueForStrings()
         {
             var tokenizer = CreateTokenizer("{'a':'b'}");
 
@@ -195,7 +195,7 @@ namespace JsonRocket.Test
         }
 
         [Fact]
-        public void ProvidesBoundsForNumbers()
+        public void ProvidesValueForNumbers()
         {
             var tokenizer = CreateTokenizer("{'a': 1234 }");
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace JsonRocket
 {
@@ -14,20 +13,19 @@ namespace JsonRocket
             _nesting = new Stack<Trie.Node>(1024);
         }
 
-        public void ReadFrom(Tokenizer tokenizer, List<KeyValuePair<string, ArraySegment<byte>>> result)
+        public void ReadFrom(Tokenizer tokenizer, List<ExtractedValue> result)
         {
             _nesting.Clear();
             while (tokenizer.MoveNext())
             {
                 if (tokenizer.Current == Token.Key)
                 {
-                    var bounds = tokenizer.GetTokenBounds();
+                    var bounds = tokenizer.GetTokenValue();
                     var r = _trie.Find(bounds);
                     if (r.Node != null && r.Node.IsMatch)
                     {
                         tokenizer.MoveNext();
-                        result.Add(new KeyValuePair<string, ArraySegment<byte>>(
-                            r.Node.Value, tokenizer.GetTokenBounds()));
+                        result.Add(new ExtractedValue(r.Node.Value, tokenizer.GetTokenValue()));
                     }
                 }
             }

@@ -122,7 +122,7 @@ namespace JsonRocket
             return _current != Token.Error;
         }
 
-        public ArraySegment<byte> GetTokenBounds()
+        public ArraySegment<byte> GetTokenValue()
         {
             if (_current != Token.Float &&
                 _current != Token.Integer &&

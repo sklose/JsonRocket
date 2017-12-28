@@ -18,7 +18,7 @@ namespace JsonRocket.Test
 
         public static void AssertValue(this Tokenizer tokenizer, string expected)
         {
-            var actual = tokenizer.GetTokenBounds().ToValue();
+            var actual = tokenizer.GetTokenValue().ToValue();
             actual.Should().Be(expected);
         }
 
