@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace JsonRocket
 {
@@ -88,18 +87,15 @@ namespace JsonRocket
                     break;
 
                 case Literals.True0:
-                    _index += Literals.True1P.Length;
-                    _current = Token.True;
+                    Skip(Literals.TrueSkipLength, Token.True);
                     break;
 
                 case Literals.False0:
-                    _index += Literals.False1P.Length;
-                    _current = Token.False;
+                    Skip(Literals.FalseSkipLength, Token.False);
                     break;
 
                 case Literals.Null0:
-                    _index += Literals.Null1P.Length;
-                    _current = Token.Null;
+                    Skip(Literals.NullSkipLength, Token.Null);
                     break;
 
                 case Literals.Comma:
@@ -138,13 +134,27 @@ namespace JsonRocket
 
             return new ArraySegment<byte>(_data, _start, _end - _start + 1);
         }
+
+        private void Skip(int count, Token success)
+        {
+            _current = success;
+            _index += count;
+            if (_index >= _data.Length)
+            {
+                _index -= count;
+                _current = Token.Error;
+            }
+        }
         
         private bool ReadString(byte endQuote)
         {
             for (_index = _index + 1; _index < _data.Length; _index++)
             {
-                if (_data[_index] == endQuote && _data[_index - 1] != Literals.EscapeChar)
+                if (_data[_index] == endQuote)
                     return true;
+
+                if (_data[_index] == Literals.EscapeChar)
+                    _index++;
             }
 
             return false;
@@ -152,48 +162,26 @@ namespace JsonRocket
 
         private Token ReadNumber()
         {
-            var result = Token.Integer;
-            do
+            bool isFloat = false;
+            for (; _index < _data.Length; _index++)
             {
-                switch (_data[_index])
+                var e = Literals.NumberElements[_data[_index]];
+                isFloat |= e.IsFloat;
+
+                if (e.IsEnd)
                 {
-                    case (byte) '-':
-                    case (byte) '0':
-                    case (byte) '1':
-                    case (byte) '2':
-                    case (byte) '3':
-                    case (byte) '4':
-                    case (byte) '5':
-                    case (byte) '6':
-                    case (byte) '7':
-                    case (byte) '8':
-                    case (byte) '9':
-                        break;
-
-                    case (byte) '+':
-                    case (byte) '.':
-                    case (byte) 'e':
-                    case (byte) 'E':
-                        result = Token.Float;
-                        break;
-
-                    case Literals.Whitespace1:
-                    case Literals.Whitespace2:
-                    case Literals.Whitespace3:
-                    case Literals.Whitespace4:
-                    case Literals.Comma:
-                    case Literals.ArrayEnd:
-                    case Literals.ObjectEnd:
-                        _index--;
-                        return result;
-
-                    default:
-                        _index--;
-                        return Token.Error;
+                    _index--;
+                    break;
                 }
-            } while (++_index < _data.Length);
 
-            return Token.Error;
+                if (e.IsError)
+                {
+                    _index--;
+                    return Token.Error;
+                }
+            }
+
+            return isFloat ? Token.Float : Token.Integer;
         }
     }
 }
