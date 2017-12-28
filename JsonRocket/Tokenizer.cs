@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 
 namespace JsonRocket
 {
     public class Tokenizer
     {
-        private readonly Stack<Token> _parents;
+        private TokenStack _parents;
         private byte[] _data;
         private Token _current;
         private int _index, _start, _end;
@@ -15,7 +15,8 @@ namespace JsonRocket
             _data = new byte[] { };
             _index = -1;
             _current = Token.Undefined;
-            _parents = new Stack<Token>(1024);
+            _parents = new TokenStack();
+            _parents.Initialize();
         }
 
         public Token Current => _current;
@@ -27,7 +28,7 @@ namespace JsonRocket
             _current = Token.Undefined;
             _parents.Clear();
         }
-
+        
         public void MoveToNext(Token token)
         {
             while (_current != token && _current != Token.Error && MoveNext())
@@ -49,19 +50,25 @@ namespace JsonRocket
             switch (b)
             {
                 case Literals.ObjectStart:
-                    _parents.Push(_current = Token.ObjectStart);
+                    if (!_parents.TryPush(_current = Token.ObjectStart))
+                    {
+                        _current = Token.Error;
+                    }
                     break;
 
                 case Literals.ObjectEnd:
-                    _current = VerifyParentIs(Token.ObjectStart, Token.ObjectEnd);
+                    _current = _parents.TryPop() ? Token.ObjectEnd : Token.Error;
                     break;
 
                 case Literals.ArrayStart:
-                    _parents.Push(_current = Token.ArrayStart);
+                    if (!_parents.TryPush(_current = Token.ArrayStart))
+                    {
+                        _current = Token.Error;
+                    }
                     break;
 
                 case Literals.ArrayEnd:
-                    _current = VerifyParentIs(Token.ArrayStart, Token.ArrayEnd);
+                    _current = _parents.TryPop() ? Token.ArrayEnd : Token.Error;
                     break;
 
                 case Literals.SingleQuote:
@@ -95,29 +102,14 @@ namespace JsonRocket
                     _current = Token.Null;
                     break;
 
-                case Literals.Colon:
-                    if (_current != Token.Key)
-                    {
-                        _current = Token.Error;
-                    }
-                    else
-                    {
-                        goto skip;
-                    }
-                    break;
-
                 case Literals.Comma:
-                    if (_parents.Count > 0)
-                    {
-                        _current = _parents.Peek();
-                        goto skip;
-                    }
-                    else
+                    if (!_parents.TryPeek(out _current))
                     {
                         _current = Token.Error;
                     }
-                    break;
+                    goto skip;
 
+                case Literals.Colon:
                 case Literals.Whitespace1:
                 case Literals.Whitespace2:
                 case Literals.Whitespace3:
@@ -146,25 +138,12 @@ namespace JsonRocket
 
             return new ArraySegment<byte>(_data, _start, _end - _start + 1);
         }
-
-        private Token VerifyParentIs(Token token, Token next)
-        {
-            if (_parents.Count == 0) return Token.Error;
-            return _parents.Pop() == token ? next : Token.Error;
-        }
-
+        
         private bool ReadString(byte endQuote)
         {
-            while (++_index != _data.Length)
+            for (_index = _index + 1; _index < _data.Length; _index++)
             {
-                var b = _data[_index];
-                if (b == Literals.EscapeChar)
-                {
-                    _index++;
-                    continue;
-                }
-
-                if (b == endQuote)
+                if (_data[_index] == endQuote && _data[_index - 1] != Literals.EscapeChar)
                     return true;
             }
 
