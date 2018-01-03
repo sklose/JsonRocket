@@ -13,11 +13,8 @@ namespace JsonRocket.Test
             trie.Add("James");
             trie.Add("Mark");
 
-            trie.Find(Buffer("Ja")).StepsTaken.Should().Be(2);
-            trie.Find(Buffer("Ja")).Node.IsMatch.Should().BeFalse();
-
-            trie.Find(Buffer("Mark")).StepsTaken.Should().Be(4);
-            trie.Find(Buffer("Mark")).Node.IsMatch.Should().BeTrue();
+            trie.Find(Buffer("Ja")).IsMatch.Should().BeFalse();
+            trie.Find(Buffer("Mark")).IsMatch.Should().BeTrue();
         }
 
         [Fact]
@@ -28,9 +25,9 @@ namespace JsonRocket.Test
             trie.Add("Mark");
 
             var result = trie.Find(Buffer("Ja"));
-            trie.Find(Buffer("mes"), result.Node).Node.IsMatch.Should().BeTrue();
+            trie.Find(Buffer("mes"), result).IsMatch.Should().BeTrue();
         }
-        
+
         private byte[] Buffer(string str)
         {
             return Encoding.UTF8.GetBytes(str);

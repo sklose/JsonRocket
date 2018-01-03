@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using FluentAssertions;
+using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -12,10 +13,12 @@ namespace JsonRocket.Test
     public class ProfilingTests
     {
         private readonly ITestOutputHelper _outputHelper;
+        private readonly byte[] _buffer;
 
         public ProfilingTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
+            _buffer = LoadJson();
         }
 
         private byte[] LoadJson()
@@ -28,9 +31,8 @@ namespace JsonRocket.Test
         }
 
         [Fact]
-        public void TokenizeLargeFile()
+        public void Tokenize()
         {
-            byte[] buffer = LoadJson();
             var tokenizer = new Tokenizer();
 
             var sw = new Stopwatch();
@@ -38,7 +40,7 @@ namespace JsonRocket.Test
             for (int i = 0; i < 10; i++)
             {
                 if (i > 3) sw.Restart();
-                tokenizer.Reset(buffer);
+                tokenizer.Reset(_buffer);
                 while (tokenizer.MoveNext())
                 {
                 }
@@ -48,21 +50,19 @@ namespace JsonRocket.Test
 
             foreach (var t in times)
             {
-                _outputHelper.WriteLine($"{t} for {buffer.Length / 1024.0:N4} KB");
+                _outputHelper.WriteLine($"{t} for {_buffer.Length / 1024.0:N4} KB");
             }
         }
 
         [Fact]
         public void TokenizeWithJsonDotNet()
         {
-            var buffer = LoadJson();
-
             var sw = new Stopwatch();
             var times = new List<TimeSpan>(10);
             for (int i = 0; i < 10; i++)
             {
                 if (i > 3) sw.Restart();
-                var reader = new StreamReader(new MemoryStream(buffer));
+                var reader = new StreamReader(new MemoryStream(_buffer));
                 var json = new Newtonsoft.Json.JsonTextReader(reader);
                 while (json.Read())
                 {
@@ -72,7 +72,58 @@ namespace JsonRocket.Test
 
             foreach (var t in times)
             {
-                _outputHelper.WriteLine($"{t} for {buffer.Length / 1024.0:N4} KB");
+                _outputHelper.WriteLine($"{t} for {_buffer.Length / 1024.0:N4} KB");
+            }
+        }
+
+        [Fact]
+        public void Extract()
+        {
+            var tokenizer = new Tokenizer();
+            var trie = new Trie();
+            trie.Add("meta.view.metadata.renderTypeConfig.visible.table");
+            var extractor = new Extractor(trie);
+
+            var sw = new Stopwatch();
+            var times = new List<TimeSpan>(10);
+            var result = new List<ExtractedValue>();
+            for (int i = 0; i < 10; i++)
+            {
+                if (i > 3) sw.Restart();
+                tokenizer.Reset(_buffer);
+                extractor.ReadFrom(tokenizer, result);
+                if (i > 3) times.Add(sw.Elapsed);
+                result.Should().HaveCount(1);
+                result.Clear();
+            }
+
+            foreach (var t in times)
+            {
+                _outputHelper.WriteLine($"{t} for {_buffer.Length / 1024.0:N4} KB");
+            }
+        }
+
+        [Fact]
+        public void ExtractWithJsonDotNet()
+        {
+            var sw = new Stopwatch();
+            var times = new List<TimeSpan>(10);
+            for (int i = 0; i < 10; i++)
+            {
+                if (i > 3) sw.Restart();
+
+                var reader = new StreamReader(new MemoryStream(_buffer));
+                var json = new Newtonsoft.Json.JsonTextReader(reader);
+                var obj = JToken.ReadFrom(json);
+                var token = obj.SelectToken("$.meta.view.metadata.renderTypeConfig.visible.table", true);
+
+                if (i > 3) times.Add(sw.Elapsed);
+                token.Value<bool>().Should().BeTrue();
+            }
+
+            foreach (var t in times)
+            {
+                _outputHelper.WriteLine($"{t} for {_buffer.Length / 1024.0:N4} KB");
             }
         }
     }

@@ -11,53 +11,46 @@ namespace JsonRocket
         {
             _root = new Node(null);
         }
-        
+
         public void Add(string path)
         {
             var current = _root;
             var buffer = Encoding.UTF8.GetBytes(path);
-            foreach (var b in buffer)
+            for (int i = 0; i < buffer.Length; i++)
             {
+                var b = buffer[i];
                 if (current.Nodes[b] == null)
                 {
                     current = current.Nodes[b] = new Node(current);
+                    var str = Encoding.UTF8.GetString(buffer, i, 1);
+                    current.Value = $"{current.Parent?.Value}{str}";
                 }
             }
 
+            current.IsMatch = true;
             current.Value = path;
         }
 
-        public Result Find(byte[] buffer, Node start = null)
+        public Node Find(byte[] buffer, Node start = null)
         {
             return Find(buffer, 0, buffer.Length, start);
         }
 
-        public Result Find(ArraySegment<byte> buffer, Node start = null)
+        public Node Find(ArraySegment<byte> buffer, Node start = null)
         {
-            return Find(buffer.Array, buffer.Offset, buffer.Count);
+            return Find(buffer.Array, buffer.Offset, buffer.Count, start);
         }
 
-        public Result Find(byte[] buffer, int index, int count, Node start = null)
+        public Node Find(byte[] buffer, int index, int count, Node start = null)
         {
-            var result = new Result
-            {
-                Node = start ?? _root
-            };
-
+            var node = start ?? _root;
             for (int i = index; i < index + count; i++)
             {
-                result.Node = result.Node.Nodes[buffer[i]];
-                if (result.Node == null) break;
-                result.StepsTaken++;
+                node = node.Nodes[buffer[i]];
+                if (node == null) break;
             }
 
-            return result;
-        }
-        
-        public struct Result
-        {
-            public int StepsTaken { get; set; }
-            public Node Node { get; set; }
+            return node;
         }
 
         public class Node
@@ -70,7 +63,7 @@ namespace JsonRocket
 
             public Node Parent { get; }
             public Node[] Nodes { get; }
-            public bool IsMatch => Value != null;
+            public bool IsMatch { get; internal set; }
             public string Value { get; internal set; }
         }
     }

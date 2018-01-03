@@ -5,28 +5,69 @@ namespace JsonRocket
     public class Extractor
     {
         private readonly Trie _trie;
-        private readonly Stack<Trie.Node> _nesting;
 
         public Extractor(Trie trie)
         {
             _trie = trie;
-            _nesting = new Stack<Trie.Node>(1024);
         }
 
         public void ReadFrom(Tokenizer tokenizer, List<ExtractedValue> result)
         {
-            _nesting.Clear();
             while (tokenizer.MoveNext())
             {
-                if (tokenizer.Current == Token.Key)
+                if (tokenizer.Current == Token.ObjectStart)
                 {
-                    var bounds = tokenizer.GetTokenValue();
-                    var r = _trie.Find(bounds);
-                    if (r.Node != null && r.Node.IsMatch)
-                    {
+                    ReadObject(tokenizer, result, null);
+                }
+            }
+        }
+
+        private void ReadObject(Tokenizer tokenizer, List<ExtractedValue> result, Trie.Node prefix)
+        {
+            while (tokenizer.MoveNext())
+            {
+                switch (tokenizer.Current)
+                {
+                    case Token.ObjectEnd:
+                        return;
+
+                    case Token.Key:
+                        var currentKey = tokenizer.GetTokenValue();
+                        var n = _trie.Find(currentKey, prefix);
                         tokenizer.MoveNext();
-                        result.Add(new ExtractedValue(r.Node.Value, tokenizer.GetTokenValue()));
-                    }
+                        switch (tokenizer.Current)
+                        {
+                            case Token.ObjectStart:
+                                if (n != null)
+                                {
+                                    n = _trie.Find(Literals.Dot, n);
+                                    if (n == null)
+                                        return;
+                                    ReadObject(tokenizer, result, n);
+                                }
+                                else
+                                {
+                                    tokenizer.MoveToEndOfObject();
+                                }
+                                break;
+
+                            case Token.ArrayStart:
+                                tokenizer.MoveToEndOfArray();
+                                break;
+
+                            case Token.True:
+                            case Token.Null:
+                            case Token.False:
+                            case Token.Integer:
+                            case Token.Float:
+                            case Token.String:
+                                if (n != null)
+                                {
+                                    result.Add(new ExtractedValue(n.Value, tokenizer.GetTokenValue()));
+                                }
+                                break;
+                        }
+                        break;
                 }
             }
         }

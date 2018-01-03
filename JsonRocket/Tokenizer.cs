@@ -27,13 +27,29 @@ namespace JsonRocket
             _current = Token.Undefined;
             _parents.Clear();
         }
-        
-        public void MoveToNext(Token token)
-        {
-            while (_current != token && _current != Token.Error && MoveNext())
-            {
 
-            }
+        public void MoveToEndOfObject()
+        {
+            MoveTo(Token.ObjectStart, Token.ObjectEnd);
+        }
+
+        public void MoveToEndOfArray()
+        {
+            MoveTo(Token.ArrayStart, Token.ArrayEnd);
+        }
+
+        private void MoveTo(Token start, Token end)
+        {
+            int count = 0;
+            do
+            {
+                if (Current == start)
+                    count++;
+                else if (Current == end)
+                    count--;
+                else if (Current == Token.Error)
+                    break;
+            } while (count > 0 && MoveNext());
         }
 
         public bool MoveNext()
@@ -76,8 +92,8 @@ namespace JsonRocket
                     if (ReadString(b))
                     {
                         _end = _index - 1;
-                        _current = _current == Token.ObjectStart 
-                            ? Token.Key 
+                        _current = _current == Token.ObjectStart
+                            ? Token.Key
                             : Token.String;
                     }
                     else
@@ -87,14 +103,20 @@ namespace JsonRocket
                     break;
 
                 case Literals.True0:
+                    _start = _index;
+                    _end = _index + Literals.TrueSkipLength;
                     Skip(Literals.TrueSkipLength, Token.True);
                     break;
 
                 case Literals.False0:
+                    _start = _index;
+                    _end = _index + Literals.FalseSkipLength;
                     Skip(Literals.FalseSkipLength, Token.False);
                     break;
 
                 case Literals.Null0:
+                    _start = _index;
+                    _end = _index + Literals.NullSkipLength;
                     Skip(Literals.NullSkipLength, Token.Null);
                     break;
 
@@ -124,10 +146,12 @@ namespace JsonRocket
 
         public ArraySegment<byte> GetTokenValue()
         {
-            if (_current != Token.Float &&
-                _current != Token.Integer &&
-                _current != Token.Key &&
-                _current != Token.String)
+            if (_current == Token.ObjectStart ||
+                _current == Token.ObjectEnd ||
+                _current == Token.ArrayStart ||
+                _current == Token.ArrayEnd ||
+                _current == Token.Undefined ||
+                _current == Token.Error)
             {
                 throw new InvalidOperationException();
             }
@@ -145,7 +169,7 @@ namespace JsonRocket
                 _current = Token.Error;
             }
         }
-        
+
         private bool ReadString(byte endQuote)
         {
             for (_index = _index + 1; _index < _data.Length; _index++)

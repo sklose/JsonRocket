@@ -26,5 +26,44 @@ namespace JsonRocket.Test
             actual[1].Path.Should().Be("Value");
             actual[1].Value.ToValue().Should().Be("5");
         }
+
+        [Fact]
+        public void RetrievesSecondLevelValues()
+        {
+            var trie = new Trie();
+            trie.Add("Value.Key");
+
+            var tokenizer = new Tokenizer();
+            tokenizer.Reset("{'Key': 123, 'Value': { 'Key': 987 }}".ToInput());
+
+            var extractor = new Extractor(trie);
+            var actual = new List<ExtractedValue>();
+            extractor.ReadFrom(tokenizer, actual);
+
+            actual.Should().HaveCount(1);
+            actual[0].Path.Should().Be("Value.Key");
+            actual[0].Value.ToValue().Should().Be("987");
+        }
+
+        [Fact]
+        public void SkipsIntermediateArrays()
+        {
+            var trie = new Trie();
+            trie.Add("Key");
+            trie.Add("Value.Key");
+
+            var tokenizer = new Tokenizer();
+            tokenizer.Reset("{'Key': true, 'Array': [ 1, 2 ], 'Value': { 'Key': 987 }}".ToInput());
+
+            var extractor = new Extractor(trie);
+            var actual = new List<ExtractedValue>();
+            extractor.ReadFrom(tokenizer, actual);
+
+            actual.Should().HaveCount(2);
+            actual[0].Path.Should().Be("Key");
+            actual[0].Value.ToValue().Should().Be("true");
+            actual[1].Path.Should().Be("Value.Key");
+            actual[1].Value.ToValue().Should().Be("987");
+        }
     }
 }
