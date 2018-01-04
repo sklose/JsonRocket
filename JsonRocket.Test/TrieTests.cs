@@ -1,5 +1,5 @@
-﻿using System.Text;
-using FluentAssertions;
+﻿using FluentAssertions;
+using System.Text;
 using Xunit;
 
 namespace JsonRocket.Test

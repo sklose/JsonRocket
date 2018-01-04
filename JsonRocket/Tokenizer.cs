@@ -146,14 +146,9 @@ namespace JsonRocket
 
         public ArraySegment<byte> GetTokenValue()
         {
-            if (_current == Token.ObjectStart ||
-                _current == Token.ObjectEnd ||
-                _current == Token.ArrayStart ||
-                _current == Token.ArrayEnd ||
-                _current == Token.Undefined ||
-                _current == Token.Error)
+            if (!_current.HasValue())
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException($"Token of type '{Current}' has no value");
             }
 
             return new ArraySegment<byte>(_data, _start, _end - _start + 1);

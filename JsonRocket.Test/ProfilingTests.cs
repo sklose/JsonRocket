@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FluentAssertions;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
-using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;
 

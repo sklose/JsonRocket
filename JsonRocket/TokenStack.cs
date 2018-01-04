@@ -4,7 +4,7 @@
     {
         private Token[] _stack;
         private int _cursor;
-        
+
         public void Initialize(int capacity = 1024)
         {
             _cursor = -1;

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using BenchmarkDotNet.Attributes;
+using System;
 using System.IO;
-using BenchmarkDotNet.Attributes;
 
 namespace JsonRocket.Benchmark
 {

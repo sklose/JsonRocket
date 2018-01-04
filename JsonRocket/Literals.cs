@@ -1,15 +1,10 @@
-﻿using System.Text;
-
-namespace JsonRocket
+﻿namespace JsonRocket
 {
     internal static class Literals
     {
         static Literals()
         {
-            Dot = Encoding.ASCII.GetBytes(".");
-            True = Encoding.ASCII.GetBytes("true");
-            False = Encoding.ASCII.GetBytes("false");
-            Null = Encoding.ASCII.GetBytes("null");
+            Dot = new[] { (byte)'.' };
 
             NumberElements = new NumberElement[byte.MaxValue];
             for (int i = 0; i < NumberElements.Length; i++)
@@ -65,8 +60,5 @@ namespace JsonRocket
 
         internal static readonly NumberElement[] NumberElements;
         internal static readonly byte[] Dot;
-        internal static readonly byte[] True;
-        internal static readonly byte[] False;
-        internal static readonly byte[] Null;
     }
 }

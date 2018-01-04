@@ -1,6 +1,6 @@
-﻿using System;
+﻿using FluentAssertions;
+using System;
 using System.Text;
-using FluentAssertions;
 
 namespace JsonRocket.Test
 {
@@ -28,6 +28,13 @@ namespace JsonRocket.Test
             {
                 tokenizer.Current.Should().Be(tokens[i]);
                 tokenizer.MoveNext().Should().Be(i + 1 != tokens.Length);
+            }
+        }
+
+        public static void MoveToNext(this Tokenizer tokenizer, Token token)
+        {
+            while (tokenizer.Current != token && tokenizer.Current != Token.Error && tokenizer.MoveNext())
+            {
             }
         }
     }
