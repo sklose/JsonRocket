@@ -9,14 +9,8 @@ init:
 before_build:
   - cmd: dotnet --version
   - cmd: dotnet restore --verbosity m
-assembly_info:
-  patch: true
-  file: AssemblyInfo.cs
-  assembly_version: "{version}"
-  assembly_file_version: "{version}"
-  assembly_informational_version: "{version}"
 build_script:
-  - cmd: dotnet pack ./JsonRocket/JsonRocket.csproj
+  - cmd: dotnet pack /p:PackageVersion={version} ./JsonRocket/JsonRocket.csproj
 clone_depth: 1
 test_script:
   - cmd: dotnet restore --verbosity m
