@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/krwp2slk49htm6j7?svg=true)](https://ci.appveyor.com/project/sklose/jsonrocket)
+
 # JsonRocket
 
 Json Rocket is a fast JSON parser with the goal to extract pieces of information from a JSON message. It is not a fully fledged deserializer that reads JSON into DTO classes.
