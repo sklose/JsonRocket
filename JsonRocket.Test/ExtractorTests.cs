@@ -22,9 +22,9 @@ namespace JsonRocket.Test
 
             actual.Should().HaveCount(2);
             actual[0].Path.Should().Be("Key");
-            actual[0].Value.ToValue().Should().Be("123");
+            actual[0].Value.ReadInt32().Should().Be(123);
             actual[1].Path.Should().Be("Value");
-            actual[1].Value.ToValue().Should().Be("5");
+            actual[1].Value.ReadInt32().Should().Be(5);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace JsonRocket.Test
 
             actual.Should().HaveCount(1);
             actual[0].Path.Should().Be("Value.Key");
-            actual[0].Value.ToValue().Should().Be("987");
+            actual[0].Value.ReadInt32().Should().Be(987);
         }
 
         [Fact]
@@ -61,9 +61,9 @@ namespace JsonRocket.Test
 
             actual.Should().HaveCount(2);
             actual[0].Path.Should().Be("Key");
-            actual[0].Value.ToValue().Should().Be("true");
+            actual[0].Value.ReadBoolean().Should().BeTrue();
             actual[1].Path.Should().Be("Value.Key");
-            actual[1].Value.ToValue().Should().Be("987");
+            actual[1].Value.ReadInt32().Should().Be(987);
         }
     }
 }

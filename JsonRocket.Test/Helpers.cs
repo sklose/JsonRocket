@@ -16,10 +16,9 @@ namespace JsonRocket.Test
             return Encoding.UTF8.GetString(buffer.Array, buffer.Offset, buffer.Count);
         }
 
-        public static void AssertValue(this Tokenizer tokenizer, string expected)
+        public static void AssertValue(this Tokenizer tokenizer, object expected)
         {
-            var actual = tokenizer.GetTokenValue().ToValue();
-            actual.Should().Be(expected);
+            tokenizer.GetValue().Read().Should().Be(expected);
         }
 
         public static void AssertSequence(this Tokenizer tokenizer, params Token[] tokens)

@@ -8,7 +8,7 @@ namespace JsonRocket.Test
         [InlineData("{}")]
         [InlineData("{ }")]
         [InlineData(" { } ")]
-        public void ReadsEmtpyObject(string input)
+        public void ReadsEmptyObject(string input)
         {
             var tokenizer = CreateTokenizer(input);
             tokenizer.AssertSequence(
@@ -203,7 +203,7 @@ namespace JsonRocket.Test
             tokenizer.AssertValue("a");
 
             tokenizer.MoveToNext(Token.Integer);
-            tokenizer.AssertValue("1234");
+            tokenizer.AssertValue(1234);
         }
 
         private Tokenizer CreateTokenizer(string json)

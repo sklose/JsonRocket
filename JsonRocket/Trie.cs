@@ -3,7 +3,7 @@ using System.Text;
 
 namespace JsonRocket
 {
-    public class Trie
+    public sealed class Trie
     {
         private readonly Node _root;
 
@@ -11,6 +11,8 @@ namespace JsonRocket
         {
             _root = new Node(null);
         }
+
+        public int Count { get; private set; }
 
         public void Add(string path)
         {
@@ -29,6 +31,7 @@ namespace JsonRocket
 
             current.IsMatch = true;
             current.Value = path;
+            Count++;
         }
 
         public Node Find(byte[] buffer, Node start = null)

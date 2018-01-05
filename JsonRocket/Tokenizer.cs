@@ -2,12 +2,13 @@
 
 namespace JsonRocket
 {
-    public class Tokenizer
+    public sealed class Tokenizer
     {
         private TokenStack _parents;
         private byte[] _data;
         private Token _current;
         private int _index, _start, _end;
+        private bool _foundEscapeSequence;
 
         public Tokenizer()
         {
@@ -144,14 +145,15 @@ namespace JsonRocket
             return _current != Token.Error;
         }
 
-        public ArraySegment<byte> GetTokenValue()
+        public Value GetValue()
         {
             if (!_current.HasValue())
             {
                 throw new InvalidOperationException($"Token of type '{Current}' has no value");
             }
 
-            return new ArraySegment<byte>(_data, _start, _end - _start + 1);
+            var buffer = new ArraySegment<byte>(_data, _start, _end - _start + 1);
+            return new Value(buffer, _current.GetValueType(), _foundEscapeSequence);
         }
 
         private void Skip(int count, Token success)
@@ -167,13 +169,17 @@ namespace JsonRocket
 
         private bool ReadString(byte endQuote)
         {
+            _foundEscapeSequence = false;
             for (_index = _index + 1; _index < _data.Length; _index++)
             {
                 if (_data[_index] == endQuote)
                     return true;
 
                 if (_data[_index] == Literals.EscapeChar)
+                {
+                    _foundEscapeSequence = true;
                     _index++;
+                }
             }
 
             return false;

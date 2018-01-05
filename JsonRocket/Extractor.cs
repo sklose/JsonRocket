@@ -32,8 +32,8 @@ namespace JsonRocket
                         return;
 
                     case Token.Key:
-                        var currentKey = tokenizer.GetTokenValue();
-                        var n = _trie.Find(currentKey, prefix);
+                        var currentKey = tokenizer.GetValue();
+                        var n = _trie.Find(currentKey.Buffer, prefix);
                         tokenizer.MoveNext();
                         switch (tokenizer.Current)
                         {
@@ -63,12 +63,15 @@ namespace JsonRocket
                             case Token.String:
                                 if (n != null)
                                 {
-                                    result.Add(new ExtractedValue(n.Value, tokenizer.GetTokenValue()));
+                                    result.Add(new ExtractedValue(n.Value, tokenizer.GetValue()));
                                 }
                                 break;
                         }
                         break;
                 }
+
+                if (result.Count == _trie.Count)
+                    break;
             }
         }
     }
