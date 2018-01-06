@@ -71,5 +71,6 @@ tokenizer.Reset(json);
 
 var result = new List<JsonRocket.ExtractedValue>();
 extractor.ReadFrom(tokenizer, result);
-Console.WriteLine(result.Count); // prints '2'
+Console.WriteLine(result[0].Value.ReadString()); // prints 'John Doe'
+Console.WriteLine(result[1].Value.ReadString()); // prints 'Springfield'
 ```
