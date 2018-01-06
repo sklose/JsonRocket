@@ -35,7 +35,7 @@ namespace JsonRocket
             return HasValueMap[(int)token];
         }
 
-        public static ValueType GetValueType(this Token token)
+        internal static ValueType GetValueType(this Token token)
         {
             return ValueTypeMap[(int)token];
         }

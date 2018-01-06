@@ -47,5 +47,30 @@ namespace JsonRocket.Test
             var value = new Value(buffer, ValueType.String, input.Contains("\\"));
             value.ReadString().Should().Be(expected);
         }
+
+        [Theory]
+        [InlineData("23.1", 23.1f)]
+        [InlineData("-23.1", -23.1f)]
+        [InlineData(".1", .1f)]
+        [InlineData("193", 193f)]
+        public void ReadsSingle(string input, float expected)
+        {
+            var buffer = new ArraySegment<byte>(input.ToInput());
+            var value = new Value(buffer, ValueType.Float);
+            value.ReadSingle().Should().Be(expected);
+        }
+
+        [Theory]
+        [InlineData("23.1", 23.1d)]
+        [InlineData("-23.1", -23.1d)]
+        [InlineData(".1", .1d)]
+        [InlineData("193", 193d)]
+        [InlineData("3.141592653589793238", 3.141592653589793238d)]
+        public void ReadsDouble(string input, double expected)
+        {
+            var buffer = new ArraySegment<byte>(input.ToInput());
+            var value = new Value(buffer, ValueType.Float);
+            value.ReadDouble().Should().Be(expected);
+        }
     }
 }

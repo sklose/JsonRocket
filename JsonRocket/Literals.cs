@@ -4,23 +4,23 @@
     {
         static Literals()
         {
-            Dot = new[] { (byte)'.' };
+            DotBuffer = new[] { Dot };
 
             NumberElements = new NumberElement[byte.MaxValue];
             for (int i = 0; i < NumberElements.Length; i++)
                 NumberElements[i].IsError = true;
-            for (int i = (byte)'0'; i <= (byte)'9'; i++)
+            for (int i = Number0; i <= Number9; i++)
                 NumberElements[i].IsError = false;
 
-            NumberElements[(byte)'-'].IsError = false;
-            NumberElements[(byte)'+'].IsError = false;
-            NumberElements[(byte)'+'].IsFloat = true;
-            NumberElements[(byte)'.'].IsError = false;
-            NumberElements[(byte)'.'].IsFloat = true;
-            NumberElements[(byte)'e'].IsError = false;
-            NumberElements[(byte)'e'].IsFloat = true;
-            NumberElements[(byte)'E'].IsError = false;
-            NumberElements[(byte)'E'].IsFloat = true;
+            NumberElements[Minus].IsError = false;
+            NumberElements[Plus].IsError = false;
+            NumberElements[Plus].IsFloat = true;
+            NumberElements[Dot].IsError = false;
+            NumberElements[Dot].IsFloat = true;
+            NumberElements[LowerE].IsError = false;
+            NumberElements[LowerE].IsFloat = true;
+            NumberElements[UpperE].IsError = false;
+            NumberElements[UpperE].IsFloat = true;
 
             NumberElements[ArrayEnd].IsEnd = true;
             NumberElements[ArrayEnd].IsError = false;
@@ -57,8 +57,15 @@
         internal const byte Null0 = (byte)'n';
         internal const int NullSkipLength = 3;
         internal const byte EscapeChar = (byte)'\\';
+        internal const byte Dot = (byte)'.';
+        internal const byte Minus = (byte)'-';
+        internal const byte Plus = (byte)'+';
+        internal const byte LowerE = (byte)'e';
+        internal const byte UpperE = (byte)'E';
+        internal const byte Number0 = (byte)'0';
+        internal const byte Number9 = (byte)'9';
 
         internal static readonly NumberElement[] NumberElements;
-        internal static readonly byte[] Dot;
+        internal static readonly byte[] DotBuffer;
     }
 }

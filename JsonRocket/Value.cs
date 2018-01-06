@@ -5,7 +5,6 @@ namespace JsonRocket
 {
     public struct Value
     {
-        private const byte NumberOffset = (byte)'0';
         private readonly bool _foundEscapeSequence;
 
         public ValueType Type { get; }
@@ -121,7 +120,7 @@ namespace JsonRocket
                 case (byte)'7':
                 case (byte)'8':
                 case (byte)'9':
-                    return (byte)(hex - NumberOffset);
+                    return (byte)(hex - Literals.Number0);
 
                 case (byte)'a':
                 case (byte)'A':
@@ -183,7 +182,7 @@ namespace JsonRocket
                     }
                     else
                     {
-                        int digit = b - NumberOffset;
+                        int digit = b - Literals.Number0;
                         value += digit * multiplier;
                         multiplier *= 10;
                     }
@@ -191,6 +190,46 @@ namespace JsonRocket
             }
 
             return value;
+        }
+
+        public float ReadSingle()
+        {
+            return (float)ReadDouble();
+        }
+
+        public double ReadDouble()
+        {
+            if (Type != ValueType.Float)
+            {
+                throw new InvalidOperationException($"Cannot read value of type {Type} as Single");
+            }
+
+            int start = Buffer.Offset;
+            int end = Buffer.Offset + Buffer.Count - 1;
+
+            double result = 0, fact = 1;
+            if (Buffer.Count > 0 && Buffer.Array[start] == '-')
+            {
+                fact = -1;
+                start++;
+            }
+
+            bool pointSeen = false;
+            for (int i = start; i <= end; i++)
+            {
+                byte s = Buffer.Array[i];
+                if (s == Literals.Dot)
+                {
+                    pointSeen = true;
+                    continue;
+                }
+
+                int d = s - Literals.Number0;
+                if (pointSeen) fact /= 10.0d;
+                result = result * 10.0d + d;
+            }
+
+            return result * fact;
         }
 
         public bool ReadBoolean()
@@ -211,7 +250,7 @@ namespace JsonRocket
                     return ReadInt32();
 
                 case ValueType.Float:
-                    break;
+                    return ReadSingle();
 
                 case ValueType.True:
                 case ValueType.False:

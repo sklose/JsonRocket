@@ -40,7 +40,7 @@ namespace JsonRocket
                             case Token.ObjectStart:
                                 if (n != null)
                                 {
-                                    n = _trie.Find(Literals.Dot, n);
+                                    n = _trie.Find(Literals.DotBuffer, n);
                                     if (n == null)
                                         return;
                                     ReadObject(tokenizer, result, n);
