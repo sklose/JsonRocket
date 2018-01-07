@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Configs;
+﻿using System;
+using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
@@ -14,8 +15,12 @@ namespace JsonRocket.Benchmark
                 .With(Job.Default.With(CsProjCoreToolchain.NetCoreApp20))
                 .With(Job.Default.With(CsProjClassicNetToolchain.Net462))
                 .With(MemoryDiagnoser.Default)
-                .With(DisassemblyDiagnoser.Create(new DisassemblyDiagnoserConfig()))
-                .With(HardwareCounter.BranchMispredictions, HardwareCounter.BranchInstructions);
+                .With(DisassemblyDiagnoser.Create(new DisassemblyDiagnoserConfig()));
+
+            if (Environment.GetEnvironmentVariable("APPVEYOR") == null)
+            {
+                config.With(HardwareCounter.BranchMispredictions, HardwareCounter.BranchInstructions);
+            }
 
             BenchmarkRunner.Run<TokenizeBenchmark>(config);
         }
