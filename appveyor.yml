@@ -18,7 +18,7 @@ clone_depth: 1
 test_script:
   - cmd: dotnet restore --verbosity m
   - cmd: dotnet test ./JsonRocket.Test/
-  - cmd: dotnet run ./JsonRocket.Benchmark/ -f net46
+  - cmd: dotnet run -f net46 -p ./JsonRocket.Benchmark/
 artifacts:
   - path: '**\*.nupkg'
 deploy:
