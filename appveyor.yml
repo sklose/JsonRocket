@@ -4,6 +4,9 @@ configuration: Release
 branches:
   only:
   - master
+skip_commits:
+  files:
+    - README.md
 init:
   - cmd: git config --global core.autocrlf true
 before_build:
@@ -15,6 +18,7 @@ clone_depth: 1
 test_script:
   - cmd: dotnet restore --verbosity m
   - cmd: dotnet test ./JsonRocket.Test/
+  - cmd: dotnet run ./JsonRocket.Benchmark/ -f net46
 artifacts:
   - path: '**\*.nupkg'
 deploy:
