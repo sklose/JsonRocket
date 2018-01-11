@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 
 namespace JsonRocket
@@ -27,6 +27,10 @@ namespace JsonRocket
                     var str = Encoding.UTF8.GetString(buffer, i, 1);
                     current.Value = $"{current.Parent?.Value}{str}";
                 }
+                else
+                {
+                    current = current.Nodes[b];
+                }
             }
 
             current.IsMatch = true;
@@ -54,6 +58,12 @@ namespace JsonRocket
             }
 
             return node;
+        }
+
+        public Node Find(byte b, Node start = null)
+        {
+            var node = start ?? _root;
+            return node.Nodes[b];
         }
 
         public class Node

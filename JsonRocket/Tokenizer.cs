@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace JsonRocket
 {
@@ -126,6 +126,7 @@ namespace JsonRocket
                     {
                         _current = Token.Error;
                     }
+
                     goto skip;
 
                 case Literals.Colon:
