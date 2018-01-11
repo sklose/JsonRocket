@@ -1,10 +1,14 @@
-﻿namespace JsonRocket
+using System;
+
+namespace JsonRocket
 {
     internal static class Literals
     {
         static Literals()
         {
             DotBuffer = new[] { Dot };
+            ArrayStartBuffer = new[] { ArrayStart };
+            ArrayEndBuffer = new[] { ArrayEnd };
 
             NumberElements = new NumberElement[byte.MaxValue];
             for (int i = 0; i < NumberElements.Length; i++)
@@ -67,5 +71,7 @@
 
         internal static readonly NumberElement[] NumberElements;
         internal static readonly byte[] DotBuffer;
+        internal static readonly byte[] ArrayStartBuffer;
+        internal static readonly byte[] ArrayEndBuffer;
     }
 }

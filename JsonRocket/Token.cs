@@ -1,4 +1,4 @@
-﻿namespace JsonRocket
+namespace JsonRocket
 {
     public enum Token
     {

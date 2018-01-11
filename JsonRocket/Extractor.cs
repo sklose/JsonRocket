@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 
 namespace JsonRocket
 {
@@ -19,6 +22,9 @@ namespace JsonRocket
                 {
                     ReadObject(tokenizer, result, null);
                 }
+
+                if (result.Count == _trie.Count)
+                    break;
             }
         }
 
@@ -52,7 +58,17 @@ namespace JsonRocket
                                 break;
 
                             case Token.ArrayStart:
-                                tokenizer.MoveToEndOfArray();
+                                if (n != null)
+                                {
+                                    n = _trie.Find(Literals.ArrayStartBuffer, n);
+                                    if (n == null)
+                                        return;
+                                    ReadArray(tokenizer, result, n);
+                                }
+                                else
+                                {
+                                    tokenizer.MoveToEndOfArray();
+                                }
                                 break;
 
                             case Token.True:
@@ -73,6 +89,65 @@ namespace JsonRocket
                 if (result.Count == _trie.Count)
                     break;
             }
+        }
+
+        private void ReadArray(Tokenizer tokenizer, List<ExtractedValue> result, Trie.Node prefix)
+        {
+            int arrayIndex = 0;
+            while (tokenizer.MoveNext())
+            {
+                switch (tokenizer.Current)
+                {
+                    case Token.ArrayEnd:
+                        return;
+
+                    case Token.ObjectStart:
+
+                        var n = FindByArrayIndex(arrayIndex, prefix);
+                        if (n != null)
+                        {
+                            ReadObject(tokenizer, result, n);
+                        }
+                        else
+                        {
+                            tokenizer.MoveToEndOfObject();
+                        }
+
+                        arrayIndex++;
+
+                        break;
+                }
+
+                if (result.Count == _trie.Count)
+                    break;
+            }
+        }
+
+        private Trie.Node FindByArrayIndex(int value, Trie.Node n)
+        {
+            int digits = value == 0 ? 1 : (int)Math.Floor(Math.Log10(Math.Abs(value)) + 1);
+            int currentIndex = 0;
+
+            while (currentIndex < digits)
+            {
+                int divisor = (int)Math.Pow(10, digits - currentIndex - 1);
+
+                var digitValue = (value / divisor) + 48;
+                n = _trie.Find((byte)digitValue, n);
+                if (n == null)
+                    return null;
+
+                currentIndex++;
+                value -= divisor * digitValue;
+            }
+
+            n = _trie.Find(Literals.ArrayEndBuffer, n);
+            if (n == null)
+                return null;
+
+            n = _trie.Find(Literals.DotBuffer, n);
+
+            return n;
         }
     }
 }
