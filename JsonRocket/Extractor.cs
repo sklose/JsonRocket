@@ -22,6 +22,14 @@ namespace JsonRocket
                 {
                     ReadObject(tokenizer, result, null);
                 }
+                else if (tokenizer.Current == Token.ArrayStart)
+                {
+                    var n = _trie.Find(Literals.ArrayStartBuffer, null);
+                    if (n != null)
+                    {
+                        ReadArray(tokenizer, result, n);
+                    }
+                }
 
                 if (result.Count == _trie.Count)
                     break;

@@ -129,5 +129,60 @@ namespace JsonRocket.Test
             actual[1].Path.Should().Be("Key.Property2");
             actual[1].Value.ReadString().Should().Be("ABCD");
         }
+
+        [Fact]
+        public void ArrayIndexingWithRootArray()
+        {
+            var trie = new Trie();
+            trie.Add("[0].Container.Item");
+
+            var tokenizer = new Tokenizer();
+            tokenizer.Reset(@"[{
+                'Container': {
+                    'OtherItem': 56,
+                    'Item': 'ABCD'
+                },
+                'SomeKey': 'SomeValue'
+            }]".ToInput());
+
+            var extractor = new Extractor(trie);
+            var actual = new List<ExtractedValue>();
+            extractor.ReadFrom(tokenizer, actual);
+
+            actual.Should().HaveCount(1);
+            actual[0].Path.Should().Be("[0].Container.Item");
+            actual[0].Value.ReadString().Should().Be("ABCD");
+        }
+
+        [Fact]
+        public void ArrayIndexingLastIndexWithRootArray()
+        {
+            var trie = new Trie();
+            trie.Add("[1].Container.Item");
+
+            var tokenizer = new Tokenizer();
+            tokenizer.Reset(@"[{
+                'Container': {
+                    'OtherItem': 56,
+                    'Item': 'ABCD'
+                },
+                'SomeKey': 'SomeValue'
+            },
+            {
+                'Container': {
+                    'OtherItem': 156,
+                    'Item': 'AAAA'
+                },
+                'SomeKey': 'SomeValue'
+            }]".ToInput());
+
+            var extractor = new Extractor(trie);
+            var actual = new List<ExtractedValue>();
+            extractor.ReadFrom(tokenizer, actual);
+
+            actual.Should().HaveCount(1);
+            actual[0].Path.Should().Be("[1].Container.Item");
+            actual[0].Value.ReadString().Should().Be("AAAA");
+        }
     }
 }
