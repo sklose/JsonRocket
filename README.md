@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/krwp2slk49htm6j7?svg=true)](https://ci.appveyor.com/project/sklose/jsonrocket)
+[![Build status](https://ci.appveyor.com/api/projects/status/krwp2slk49htm6j7?svg=true)](https://ci.appveyor.com/project/sklose/jsonrocket) [![NuGet](https://img.shields.io/nuget/v/JsonRocket.svg)](https://www.nuget.org/packages/JsonRocket) [![NuGet](https://img.shields.io/nuget/dt/JsonRocket.svg)](https://www.nuget.org/packages/JsonRocket)
 
 # JsonRocket
 
