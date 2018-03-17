@@ -12,6 +12,12 @@ The goals of this project are:
 However, non-goals are:
 * proper JSON validation: the code takes a lot of shortcuts for faster parsing that can potentially read invalid JSON. It is guaranteed thought that malformed JSON will not cause any Exceptions.
 
+# Installation
+
+```powershell
+PM> Install-Package JsonRocket
+```
+
 ## Tokenization
 
 The following JSON snippet can be tokenized like this
